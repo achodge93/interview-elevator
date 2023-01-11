@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace ElevatorApp.Elevator
 {
-    internal class ElevatorEngine
+    /// <summary>
+    /// Runs the Elevator on a separate thread using Tasks to allow asynchronous processing
+    /// </summary>
+    public class ElevatorEngine
     {
+
     }
 }

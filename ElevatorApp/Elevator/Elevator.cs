@@ -13,12 +13,6 @@ namespace ElevatorApp.Elevator
     public class Elevator
     {
         public Sensor Sensor { get; }
-        public enum ElevatorState
-        {
-            Moving,
-            Stopped,
-            Quitting
-        }
 
         public void PushButton(string button)
         {

@@ -9,5 +9,7 @@ namespace ElevatorApp.Elevator.ElevatorStates
     public interface IElevatorState
     {
         void AddFloor(Floor floor);
+        public void MoveToNextFloor();
+        public void ArriveOnFloor();
     }
 }
