@@ -7,16 +7,22 @@ using System.Threading.Tasks;
 
 namespace ElevatorApp.Elevator
 {
+    /// <summary>
+    /// Controls and updates Elevator state based on input
+    /// </summary>
     public class Elevator
     {
         public Sensor Sensor { get; }
-        public Elevator()
+        public enum ElevatorState
         {
-            Sensor = new Sensor();
+            Moving,
+            Stopped,
+            Quitting
         }
+
         public void PushButton(string button)
         {
-            if (button.Equals("Q", StringComparison.OrdinalIgnoreCase))
+            if (button.EqualsIgnoreCase("Q"))
             {
                 return;
             }
@@ -31,30 +37,20 @@ namespace ElevatorApp.Elevator
             {
                 var floorMatch = int.TryParse(match.Groups["floor"].Value, out int floor);
                 var direction = match.Groups["direction"]?.Value;
-
-                // base case - inside the elevator
-                if(IsAscending)
+                ElevatorDirection floorDirection;                
+                if(direction.EqualsIgnoreCase("U"))
                 {
-                    if(CurrentFloor > floor)
-                    {
-                        NextDescendingQueue.Add(floor);
-                    }
-                    else if (CurrentFloor < floor)
-                    {
-                        CurrentQueue.Add(floor);
-                    }
+                    floorDirection = ElevatorDirection.Ascending;
                 }
+                else if (direction.EqualsIgnoreCase("D"))
+                {
+                    floorDirection = ElevatorDirection.Descending;
+                } 
                 else
                 {
-                    if(CurrentFloor > floor)
-                    {
-                        CurrentQueue.Add(floor);
-                    }
-                    else if (CurrentFloor < floor)
-                    {
-                        NextDescendingQueue.Add(floor);
-                    }
+                    floorDirection = ElevatorDirection.None;
                 }
+                var floorObj = new Floor() { Direction = floorDirection, FloorNumber = floor };
             }
         }
     }
