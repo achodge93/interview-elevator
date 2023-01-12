@@ -10,20 +10,37 @@ namespace ElevatorApp.Elevator
 {
     public class Sensor
     {
+        /// <summary>
+        /// Gets or sets the current floor the elevator is on.
+        /// If the elevator is in-between floors this will display the previous floor.
+        /// When it arrives or passes a floor it is updated.
+        /// </summary>
         public int CurrentFloor { get; set; }
+        /// <summary>
+        /// Gets or sets the next floor that will be stopped on
+        /// </summary>
         public int NextFloor  => CurrentQueue.FirstOrDefault();
-        public bool StopOnNextFloor => NextFloor == CurrentFloor + 1;
+        /// <summary>
+        /// Determines if the elevator will stop on the next floor or continue.
+        /// </summary>
+        public bool StopOnNextFloor(bool isAscending) => 
+            isAscending
+                ? (NextFloor == CurrentFloor + 1)
+                : (NextFloor == CurrentFloor - 1);
+
         public IElevatorState ElevatorState;
         public CurrentElevatorBehavior CurrentBehavior { get; set; } = CurrentElevatorBehavior.Stopped;
         public ElevatorDirection Direction { get; set; }
+
         /// <summary>
-        /// Represents the current queue of floors the elevator will stop on. 
-        /// When this completes and does not get a valid input before the waiting period expires it will be replaced by NextAscendingQueue or NextDescendingQueue
+        /// Contains all of the floors and their current request state
         /// </summary>
-        public LinkedList<int> CurrentQueue { get; set; } = new LinkedList<int>();
-        public LinkedList<int> NextAscendingQueue { get; set; } = new LinkedList<int>();
-        public LinkedList<int> NextDescendingQueue { get; set; } = new LinkedList<int>();
+        public IList<Floor> FloorList = new List<Floor>(Enumerable.Range(0, 200).Select(x => new Floor() { FloorNumber = x}));
 
-
+        /// <summary>
+        /// Contains and ordered set of the floor numbers that are in line to be stopped at. 
+        /// New additions are automatically sorted in either ascending or descending order based on the current ElevatorState
+        /// </summary>
+        public SortedSet<int> CurrentQueue { get; set; } = new SortedSet<int>();
     }
 }

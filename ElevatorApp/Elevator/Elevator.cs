@@ -31,20 +31,13 @@ namespace ElevatorApp.Elevator
             {
                 var floorMatch = int.TryParse(match.Groups["floor"].Value, out int floor);
                 var direction = match.Groups["direction"]?.Value;
-                ElevatorDirection floorDirection;                
-                if(direction.EqualsIgnoreCase("U"))
-                {
-                    floorDirection = ElevatorDirection.Ascending;
-                }
-                else if (direction.EqualsIgnoreCase("D"))
-                {
-                    floorDirection = ElevatorDirection.Descending;
-                } 
-                else
-                {
-                    floorDirection = ElevatorDirection.None;
-                }
-                var floorObj = new Floor() { Direction = floorDirection, FloorNumber = floor };
+                var floorUpdate = new Floor();
+
+                floorUpdate.IsAscending = direction.EqualsIgnoreCase("U");
+                floorUpdate.IsDescending = direction.EqualsIgnoreCase("D");
+                floorUpdate.IsSetFromElevator = direction == null;
+
+                Sensor.ElevatorState.AddFloor(floorUpdate);
             }
         }
     }

@@ -18,43 +18,69 @@ namespace ElevatorApp.Elevator.ElevatorStates
 
         public override void AddFloor(Floor floor)
         {
-            if(floor.Direction == ElevatorDirection.Ascending || floor.Direction == ElevatorDirection.None)
+            if(floor.IsAscending || floor.IsSetFromElevator)
             {
-                if(floor.FloorNumber <= Sensor.NextFloor)
-                {
-                    Sensor.NextDescendingQueue.AddLast(floor.FloorNumber);
-                }
-                else
-                {
-                    Sensor.CurrentQueue.AddLast(floor.FloorNumber);
-                    Sensor.CurrentQueue = new LinkedList<int>(Sensor.CurrentQueue.OrderBy(x => x));
-                }
+                AddUserInputToQueue(floor);
             }
             else
             {
-                Sensor.NextDescendingQueue.AddLast(floor.FloorNumber);
+                Sensor.FloorList[floor.FloorNumber].IsDescending = true;
+                Sensor.FloorList[floor.FloorNumber].IsSetFromElevator = floor.IsSetFromElevator;
+            }
+        }
+
+        private void AddUserInputToQueue(Floor floor)
+        {
+            if (floor.FloorNumber == Sensor.CurrentFloor + 1)
+            {
+                Sensor.FloorList[floor.FloorNumber].IsAscending = true;
+                Sensor.FloorList[floor.FloorNumber].IsSetFromElevator = floor.IsSetFromElevator;
+                // Only add to stop list if we are not in between floors
+                if(Sensor.CurrentBehavior == CurrentElevatorBehavior.Stopped)
+                {
+                    Sensor.CurrentQueue.Add(floor.FloorNumber);
+                }
+            }
+            else if (floor.FloorNumber < Sensor.CurrentFloor + 1)
+            {
+                Sensor.FloorList[floor.FloorNumber].IsDescending = true;
+                Sensor.FloorList[floor.FloorNumber].IsSetFromElevator = floor.IsSetFromElevator;
+            }
+            else
+            {
+                Sensor.FloorList[floor.FloorNumber].IsAscending = true;
+                Sensor.FloorList[floor.FloorNumber].IsSetFromElevator = floor.IsSetFromElevator;
+                Sensor.CurrentQueue.Add(floor.FloorNumber);
             }
         }
 
         public override void ArriveOnFloor()
         {
-            if(Sensor.StopOnNextFloor)
+            if(Sensor.StopOnNextFloor(true))
             {
                 Sensor.CurrentBehavior = CurrentElevatorBehavior.Stopped;
-                Sensor.CurrentQueue.RemoveFirst();
+                Sensor.CurrentFloor++;
+                Sensor.CurrentQueue.Remove(Sensor.CurrentFloor);
+                Sensor.FloorList[Sensor.CurrentFloor].IsAscending = false;
+            }
+            else
+            {
+                Sensor.CurrentFloor++;
             }
 
-            Sensor.CurrentFloor++;
         }
 
         public override void MoveToNextFloor()
         {
             if(!Sensor.CurrentQueue.Any())
             {
-                Sensor.CurrentQueue = new LinkedList<int>(Sensor.NextDescendingQueue.OrderByDescending(x => x));
-                Sensor.NextDescendingQueue = new LinkedList<int>();
+                var nextQueue = Sensor.FloorList.Where(x => x.IsDescending);
+                Sensor.CurrentQueue = new SortedSet<int>(nextQueue.Select(x => x.FloorNumber), Comparer<int>.Create((x, y) => -x.CompareTo(y)));
                 Sensor.ElevatorState = new DescendingElevatorState(Sensor);
+                Sensor.ElevatorState.MoveToNextFloor();
             }
+
+            Sensor.Direction = ElevatorDirection.Ascending;
             Sensor.CurrentBehavior = CurrentElevatorBehavior.Moving;
         }
     }
