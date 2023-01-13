@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ElevatorApp.Elevator.ElevatorStates;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,34 @@ namespace ElevatorApp.Elevator
     /// </summary>
     public class ElevatorEngine
     {
+        Elevator Elevator = new Elevator();
+        AutoResetEvent resetEvent = new AutoResetEvent(false);
+        public void Run()
+        {
 
+            Task.Run(async () =>
+            {
+                while(true)
+                {
+                    if(Elevator.ElevatorState is WaitingElevatorState)
+                    {
+                        resetEvent.WaitOne();
+                    }
+                    Elevator.MoveToNextFloor();
+                    await Task.Delay(3000);
+                    Elevator.ArriveOnFloor();
+                    if(Elevator.CurrentBehavior == ElevatorStates.ElevatorState.CurrentElevatorBehavior.Stopped)
+                    {
+                        await Task.Delay(1000);
+                    }
+
+                }
+            });
+        }
+        public void PushButton(string button)
+        {
+            Elevator.PushButton(button);
+            resetEvent.Set();
+        }
     }
 }

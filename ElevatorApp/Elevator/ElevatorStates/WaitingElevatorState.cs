@@ -12,24 +12,32 @@ namespace ElevatorApp.Elevator.ElevatorStates
     /// </summary>
     public class WaitingElevatorState : ElevatorState
     {
-        public WaitingElevatorState(Sensor sensor) : base(sensor)
+        public WaitingElevatorState(Elevator elevator) : base(elevator)
         {
 
         }
 
         public override void AddFloor(Floor floor)
         {
-            throw new NotImplementedException();
+            if(floor.IsSetFromElevator && floor.FloorNumber > Elevator.CurrentFloor)
+            {
+                Elevator.ElevatorState = new AscendingElevatorState(Elevator);
+                Elevator.ElevatorState.AddFloor(floor);
+            }
+            else if(floor.IsSetFromElevator && floor.FloorNumber < Elevator.CurrentFloor)
+            {
+                Elevator.ElevatorState = new DescendingElevatorState(Elevator);
+                Elevator.ElevatorState.AddFloor(floor);
+            }
+
         }
 
         public override void ArriveOnFloor()
         {
-            throw new NotImplementedException();
         }
 
         public override void MoveToNextFloor()
         {
-            throw new NotImplementedException();
         }
     }
 }

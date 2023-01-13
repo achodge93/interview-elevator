@@ -8,7 +8,7 @@ namespace ElevatorApp.Elevator.ElevatorStates
 {
     public abstract class ElevatorState : IElevatorState
     {
-        public Sensor Sensor { get; }
+        public Elevator Elevator { get; }
         public enum CurrentElevatorBehavior
         {
             Moving,
@@ -17,9 +17,9 @@ namespace ElevatorApp.Elevator.ElevatorStates
         }
 
         public ElevatorDirection Direction { get; protected set; }
-        protected ElevatorState(Sensor sensor)
+        protected ElevatorState(Elevator elevator)
         {
-            Sensor = sensor;
+            Elevator = elevator;
         }
 
         /**

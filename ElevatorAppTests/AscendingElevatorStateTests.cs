@@ -11,13 +11,13 @@ namespace ElevatorAppTests
 {
     public class AscendingElevatorStateTests
     {
-        Sensor sensor;
+        Elevator Elevator;
         AscendingElevatorState elevatorState;
 
         public AscendingElevatorStateTests()
         {
-            this.sensor = new Sensor();
-            this.elevatorState = new AscendingElevatorState(sensor);
+            this.Elevator = new Elevator();
+            this.elevatorState = new AscendingElevatorState(Elevator);
         }
 
         [Fact]
@@ -25,8 +25,8 @@ namespace ElevatorAppTests
         {
             var newFloor = new Floor() { IsAscending = true, FloorNumber = 10 };
             elevatorState.AddFloor(newFloor);
-            Assert.Single(sensor.CurrentQueue);
-            Assert.Equal(10, sensor.CurrentQueue.FirstOrDefault());
+            Assert.Single(Elevator.CurrentQueue);
+            Assert.Equal(10, Elevator.CurrentQueue.FirstOrDefault());
         }
 
         [Theory]
@@ -37,9 +37,9 @@ namespace ElevatorAppTests
         {
             var newFloor = new Floor() { IsSetFromElevator = true, FloorNumber = desiredFloor };
             elevatorState.AddFloor(newFloor);
-            sensor.CurrentFloor = currentFloor;
-            Assert.Single(sensor.CurrentQueue);
-            Assert.Equal(desiredFloor, sensor.CurrentQueue.FirstOrDefault());
+            Elevator.CurrentFloor = currentFloor;
+            Assert.Single(Elevator.CurrentQueue);
+            Assert.Equal(desiredFloor, Elevator.CurrentQueue.FirstOrDefault());
         }
 
         [Theory]
@@ -50,53 +50,53 @@ namespace ElevatorAppTests
         public void WhenButtonIsDescending_ThenFloorIsAddedToNextDescendingQueue(int currentFloor, int desiredFloor)
         {
             var newFloor = new Floor() { IsDescending = true, FloorNumber = desiredFloor };
-            sensor.CurrentFloor = currentFloor;
+            Elevator.CurrentFloor = currentFloor;
             elevatorState.AddFloor(newFloor);
-            Assert.Empty(sensor.CurrentQueue);
-            Assert.Equal(desiredFloor, sensor.FloorList.FirstOrDefault(x => x.IsDescending).FloorNumber);
+            Assert.Empty(Elevator.CurrentQueue);
+            Assert.Equal(desiredFloor, Elevator.FloorList.FirstOrDefault(x => x.IsDescending).FloorNumber);
         }
 
         [Fact]
         public void WhenElevatorMovesToNextFloor_ThenElevatorBehaviorSetToMoving()
         {
             var newFloor = new Floor() { IsSetFromElevator = true, FloorNumber = 2 };
-            sensor.CurrentFloor = 0;
+            Elevator.CurrentFloor = 0;
             elevatorState.AddFloor(newFloor);
 
             elevatorState.MoveToNextFloor();
 
-            Assert.Equal(ElevatorState.CurrentElevatorBehavior.Moving, elevatorState.Sensor.CurrentBehavior);
+            Assert.Equal(ElevatorState.CurrentElevatorBehavior.Moving, elevatorState.Elevator.CurrentBehavior);
         }
 
         [Fact]
         public void WhenElevatorArrivesOnFloor_ThenElevatorContinuesMoving()
         {
             var newFloor = new Floor() { IsSetFromElevator = true, FloorNumber = 2 };
-            sensor.CurrentFloor = 0;
+            Elevator.CurrentFloor = 0;
             elevatorState.AddFloor(newFloor);
 
             elevatorState.MoveToNextFloor();
             elevatorState.ArriveOnFloor();
-            Assert.Equal(ElevatorState.CurrentElevatorBehavior.Moving, elevatorState.Sensor.CurrentBehavior);
+            Assert.Equal(ElevatorState.CurrentElevatorBehavior.Moving, elevatorState.Elevator.CurrentBehavior);
         }
 
         [Fact]
         public void WhenElevatorArrivesOnFloorPriorToExpectedFloor_ThenStopOnNextFloorIsTrue()
         {
             var newFloor = new Floor() { IsSetFromElevator = true, FloorNumber = 2 };
-            sensor.CurrentFloor = 0;
+            Elevator.CurrentFloor = 0;
             elevatorState.AddFloor(newFloor);
 
             elevatorState.MoveToNextFloor();
             elevatorState.ArriveOnFloor();
-            Assert.True(sensor.StopOnNextFloor(true));
+            Assert.True(Elevator.StopOnNextFloor(true));
         }
 
         [Fact]
         public void WhenElevatorArrivesOnExpectedFloor_ThenElevatorBehaviorIsStoppedAndFloorIsRemovedFromQueue()
         {
             var newFloor = new Floor() { IsSetFromElevator = true, FloorNumber = 2 };
-            sensor.CurrentFloor = 0;
+            Elevator.CurrentFloor = 0;
             elevatorState.AddFloor(newFloor);
 
             elevatorState.MoveToNextFloor();
@@ -105,8 +105,8 @@ namespace ElevatorAppTests
             elevatorState.MoveToNextFloor();
             elevatorState.ArriveOnFloor();
 
-            Assert.Equal(ElevatorState.CurrentElevatorBehavior.Stopped, sensor.CurrentBehavior);
-            Assert.Empty(sensor.CurrentQueue);
+            Assert.Equal(ElevatorState.CurrentElevatorBehavior.Stopped, Elevator.CurrentBehavior);
+            Assert.Empty(Elevator.CurrentQueue);
         }
     }
 }
