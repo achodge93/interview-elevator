@@ -19,12 +19,12 @@ namespace ElevatorApp.Elevator.ElevatorStates
 
         public override void AddFloor(Floor floor)
         {
-            if(floor.IsSetFromElevator && floor.FloorNumber > Elevator.CurrentFloor)
+            if(floor.FloorNumber > Elevator.CurrentFloor)
             {
                 Elevator.ElevatorState = new AscendingElevatorState(Elevator);
                 Elevator.ElevatorState.AddFloor(floor);
             }
-            else if(floor.IsSetFromElevator && floor.FloorNumber < Elevator.CurrentFloor)
+            else if(floor.FloorNumber < Elevator.CurrentFloor)
             {
                 Elevator.ElevatorState = new DescendingElevatorState(Elevator);
                 Elevator.ElevatorState.AddFloor(floor);
@@ -36,7 +36,39 @@ namespace ElevatorApp.Elevator.ElevatorStates
         {
         }
 
+        public override int GetUpcomingFloor()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool IsOppositeDirection(Floor floor)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void MoveToNextFloor()
+        {
+        }
+
+        public override void ResetStopForCurrentDirection(Floor floor)
+        {
+        }
+
+        public override void ResetStopForOppositeDirection(Floor floor)
+        {
+        }
+
+        public override void SetStopForCurrentDirection(Floor floor)
+        {
+        }
+
+        public override void SetStopForOppositeDirection(Floor floor)
+        {
+        }
+
+        public override bool StopOnNextFloor() => true;
+
+        public override void UpdateCurrentFloor()
         {
         }
     }

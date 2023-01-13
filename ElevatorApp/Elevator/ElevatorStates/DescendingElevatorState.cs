@@ -15,72 +15,47 @@ namespace ElevatorApp.Elevator.ElevatorStates
         {
         }
 
+        public override void SetStopForCurrentDirection(Floor floor)
+        {
+            Elevator.FloorList[floor.FloorNumber].DescendingCommand.ShouldStop = true;
+        }
+
+        public override void ResetStopForCurrentDirection(Floor floor)
+        {
+            Elevator.FloorList[floor.FloorNumber].DescendingCommand.ShouldStop = false;
+        }
+
+        public override void SetStopForOppositeDirection(Floor floor)
+        {
+            Elevator.FloorList[floor.FloorNumber].AscendingCommand.ShouldStop = true;
+        }
+
+        public override void ResetStopForOppositeDirection(Floor floor)
+        {
+            Elevator.FloorList[floor.FloorNumber].AscendingCommand.ShouldStop = false;
+        }
+        public override bool IsOppositeDirection(Floor floor)
+        {
+            return floor.FloorNumber > GetUpcomingFloor();
+        }
+
         public override void AddFloor(Floor floor)
         {
-            if (floor.IsDescending || floor.IsSetFromElevator)
+            if (floor.DescendingCommand.ShouldStop || floor.DescendingCommand.IsInElevator)
             {
                 AddUserInputToQueue(floor);
             }
             else
             {
-                Elevator.FloorList[floor.FloorNumber].IsAscending = true;
-                Elevator.FloorList[floor.FloorNumber].IsSetFromElevator = floor.IsSetFromElevator;
+                Elevator.FloorList[floor.FloorNumber].AscendingCommand.ShouldStop = true;
+                Elevator.FloorList[floor.FloorNumber].AscendingCommand.IsInElevator = floor.AscendingCommand.IsInElevator;
             }
         }
-
-        private void AddUserInputToQueue(Floor floor)
-        {
-            if (floor.FloorNumber == Elevator.CurrentFloor - 1)
-            {
-                // Only add to stop list if we are not in between floors
-                if (Elevator.CurrentBehavior == CurrentElevatorBehavior.Stopped)
-                {
-                    Elevator.CurrentQueue.Add(floor.FloorNumber);
-                    Elevator.FloorList[floor.FloorNumber].IsDescending = true;
-                    Elevator.FloorList[floor.FloorNumber].IsSetFromElevator = floor.IsSetFromElevator;
-                }
-                else
-                {
-                    Elevator.FloorList[floor.FloorNumber].IsAscending = true;
-                    Elevator.FloorList[floor.FloorNumber].IsSetFromElevator = floor.IsSetFromElevator;
-                }
-            }
-            else if (floor.FloorNumber > Elevator.CurrentFloor - 1)
-            {
-                Elevator.FloorList[floor.FloorNumber].IsAscending = true;
-                Elevator.FloorList[floor.FloorNumber].IsSetFromElevator = floor.IsSetFromElevator;
-            }
-            else
-            {
-                Elevator.FloorList[floor.FloorNumber].IsDescending = true;
-                Elevator.FloorList[floor.FloorNumber].IsSetFromElevator = floor.IsSetFromElevator;
-                Elevator.CurrentQueue.Add(floor.FloorNumber);
-            }
-        }
-
-        public override void ArriveOnFloor()
-        {
-            if (Elevator.StopOnNextFloor(false))
-            {
-                Elevator.CurrentBehavior = CurrentElevatorBehavior.Stopped;
-                Elevator.CurrentFloor--;
-                Console.WriteLine($"Stopping on floor {Elevator.CurrentFloor}");
-                Elevator.CurrentQueue.Remove(Elevator.CurrentFloor);
-                Elevator.FloorList[Elevator.CurrentFloor].IsDescending = false;
-            }
-            else
-            {
-                Elevator.CurrentFloor--;
-                Console.WriteLine($"Skipping floor {Elevator.CurrentFloor}");
-            }
-            
-        }
-
         public override void MoveToNextFloor()
         {
             if (!Elevator.CurrentQueue.Any())
             {
-                var nextQueue = Elevator.FloorList.Where(x => x.IsAscending);
+                var nextQueue = Elevator.FloorList.Where(x => x.AscendingCommand.ShouldStop);
 
                 if(!nextQueue.Any())
                 {
@@ -99,5 +74,9 @@ namespace ElevatorApp.Elevator.ElevatorStates
             Elevator.Direction = ElevatorDirection.Descending;
             Elevator.CurrentBehavior = CurrentElevatorBehavior.Moving;
         }
+
+        public override bool StopOnNextFloor() => Elevator.StopOnNextFloor(false);
+        public override void UpdateCurrentFloor() => Elevator.CurrentFloor--;
+        public override int GetUpcomingFloor() => Elevator.CurrentFloor - 1;
     }
 }

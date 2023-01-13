@@ -11,5 +11,6 @@ namespace ElevatorApp.Elevator.ElevatorStates
         void AddFloor(Floor floor);
         public void MoveToNextFloor();
         public void ArriveOnFloor();
+        public void UpdateState();
     }
 }

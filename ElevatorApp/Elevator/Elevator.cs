@@ -24,6 +24,7 @@ namespace ElevatorApp.Elevator
         /// Gets or sets the next floor that will be stopped on
         /// </summary>
         public int NextFloor => CurrentQueue.FirstOrDefault();
+        public int CurrentWeight { get; set; }
         /// <summary>
         /// Determines if the elevator will stop on the next floor or continue.
         /// </summary>
@@ -60,6 +61,11 @@ namespace ElevatorApp.Elevator
             ElevatorState.ArriveOnFloor();
         }
 
+        public void UpdateState()
+        {
+            ElevatorState.UpdateState();
+        }
+
         public void PushButton(string button)
         {
             if (button.EqualsIgnoreCase("Q"))
@@ -80,12 +86,18 @@ namespace ElevatorApp.Elevator
                 var floorUpdate = new Floor();
 
                 floorUpdate.FloorNumber = floor;
-                floorUpdate.IsAscending = direction.EqualsIgnoreCase("U");
-                floorUpdate.IsDescending = direction.EqualsIgnoreCase("D");
-                floorUpdate.IsSetFromElevator = string.IsNullOrEmpty(direction);
 
+                var isFloorRequestAscending = direction.EqualsIgnoreCase("U");
+                var isFloorRequestDescending = direction.EqualsIgnoreCase("D");
+
+                floorUpdate.AscendingCommand.ShouldStop = isFloorRequestAscending;
+                floorUpdate.DescendingCommand.ShouldStop = isFloorRequestDescending;
+                floorUpdate.AscendingCommand.IsInElevator = string.IsNullOrEmpty(direction);
+                floorUpdate.DescendingCommand.IsInElevator = string.IsNullOrEmpty(direction);
                 ElevatorState.AddFloor(floorUpdate);
             }
         }
+
+        internal bool IsAtWeightCapacity() => CurrentWeight >= 2100;
     }
 }

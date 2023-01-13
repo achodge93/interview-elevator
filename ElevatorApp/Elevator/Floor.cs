@@ -11,9 +11,8 @@ namespace ElevatorApp.Elevator
     /// </summary>
     public class Floor
     {
-        public bool IsAscending { get; set; }
-        public bool IsDescending { get; set; }
-        public bool IsSetFromElevator { get; set; }
+        public ElevatorCommand AscendingCommand { get; set; } = new ElevatorCommand();
+        public ElevatorCommand DescendingCommand { get; set; } = new ElevatorCommand();
         public int FloorNumber { get; set; }
     }
 }
