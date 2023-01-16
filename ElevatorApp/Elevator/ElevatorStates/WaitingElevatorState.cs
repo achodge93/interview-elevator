@@ -10,66 +10,45 @@ namespace ElevatorApp.Elevator.ElevatorStates
     /// Encapsulates logic for when the elevator stops.
     /// If there are no more stops queued it will wait for user input before continuing
     /// </summary>
-    public class WaitingElevatorState : ElevatorState
+    public class WaitingElevatorState : IElevatorState
     {
-        public WaitingElevatorState(Elevator elevator) : base(elevator)
+        public Elevator Elevator {get;}
+        public WaitingElevatorState(Elevator elevator)
         {
-
+            Elevator = elevator;
         }
 
-        public override void AddFloor(Floor floor)
+        public void AddFloor(Floor floor)
         {
             if(floor.FloorNumber > Elevator.CurrentFloor)
             {
                 Elevator.ElevatorState = new AscendingElevatorState(Elevator);
+                floor.AscendingCommand.ShouldStop = true;
                 Elevator.ElevatorState.AddFloor(floor);
             }
             else if(floor.FloorNumber < Elevator.CurrentFloor)
             {
                 Elevator.ElevatorState = new DescendingElevatorState(Elevator);
+                floor.DescendingCommand.ShouldStop = true;
                 Elevator.ElevatorState.AddFloor(floor);
             }
-
         }
 
-        public override void ArriveOnFloor()
+        public void MoveToNextFloor()
         {
         }
 
-        public override int GetUpcomingFloor()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool IsOppositeDirection(Floor floor)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void MoveToNextFloor()
+        public void ArriveOnFloor()
         {
         }
 
-        public override void ResetStopForCurrentDirection(Floor floor)
+        public void UpdateState()
         {
+
         }
-
-        public override void ResetStopForOppositeDirection(Floor floor)
+        public bool ShouldStopOnNextFloor()
         {
-        }
-
-        public override void SetStopForCurrentDirection(Floor floor)
-        {
-        }
-
-        public override void SetStopForOppositeDirection(Floor floor)
-        {
-        }
-
-        public override bool StopOnNextFloor() => true;
-
-        public override void UpdateCurrentFloor()
-        {
+            return true;
         }
     }
 }

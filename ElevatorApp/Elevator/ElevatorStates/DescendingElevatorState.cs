@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -56,26 +57,39 @@ namespace ElevatorApp.Elevator.ElevatorStates
             if (!Elevator.CurrentQueue.Any())
             {
                 var nextQueue = Elevator.FloorList.Where(x => x.AscendingCommand.ShouldStop);
-
-                if(!nextQueue.Any())
-                {
-                    Elevator.ElevatorState = new WaitingElevatorState(Elevator);
-                }
-                else
+                var nextDescending = Elevator.FloorList.Where(x => x.DescendingCommand.ShouldStop);
+                if(nextQueue.Any())
                 {
                     Elevator.CurrentQueue = new SortedSet<int>(nextQueue.Select(x => x.FloorNumber));
                     Elevator.ElevatorState = new AscendingElevatorState(Elevator);
                     Elevator.ElevatorState.MoveToNextFloor();
                     return;
-                }
 
+                }
+                else if (nextDescending.Any()) // Ascend to the highest and then move back down
+                {
+                    // This would ideally be a different state to properly handle adding new floors, but I don't have time to implement this.
+                    Elevator.CurrentQueue = new SortedSet<int>(new[] { nextQueue.MaxBy(x => x.FloorNumber).FloorNumber });
+                    Elevator.ElevatorState = new AscendingElevatorState(Elevator);
+                    Elevator.ElevatorState.MoveToNextFloor();
+                    return;
+
+                }
+                else
+                {
+                    Elevator.ElevatorState = new WaitingElevatorState(Elevator);
+                    Elevator.ElevatorState = new AscendingElevatorState(Elevator);
+                    Elevator.ElevatorState.MoveToNextFloor();
+                    return;
+                }
             }
-            Console.WriteLine($"Moving to next floor: Current floor {Elevator.CurrentFloor } Next Stop: {Elevator.NextFloor}");
+
+            Log.Information($"Moving to next floor: Current floor {Elevator.CurrentFloor } Next Stop: {Elevator.NextFloor}");
             Elevator.Direction = ElevatorDirection.Descending;
             Elevator.CurrentBehavior = CurrentElevatorBehavior.Moving;
         }
 
-        public override bool StopOnNextFloor() => Elevator.StopOnNextFloor(false);
+        public override bool ShouldStopOnNextFloor() => Elevator.StopOnNextFloor(false);
         public override void UpdateCurrentFloor() => Elevator.CurrentFloor--;
         public override int GetUpcomingFloor() => Elevator.CurrentFloor - 1;
     }

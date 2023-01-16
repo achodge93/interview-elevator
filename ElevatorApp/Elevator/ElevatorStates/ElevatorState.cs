@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,12 +23,40 @@ namespace ElevatorApp.Elevator.ElevatorStates
             Elevator = elevator;
         }
 
-        public abstract void SetStopForCurrentDirection(Floor floorNumber);
-        public abstract void ResetStopForCurrentDirection(Floor floorNumber);
-        public abstract void SetStopForOppositeDirection(Floor floorNumber);
-        public abstract void ResetStopForOppositeDirection(Floor floorNumber);
+        /// <summary>
+        /// Sets the stop indicator and adds the stop to the queue for the current direction based on elevator state
+        /// </summary>
+        /// <param name="floorNumber">Data for the floor that will be stopped on</param>
+        public abstract void SetStopForCurrentDirection(Floor floor);
+        /// <summary>
+        /// Resets the data for floor to indicate that it has stopped for the current direction based on elevator state
+        /// </summary>
+        /// <param name="floor"></param>
+        public abstract void ResetStopForCurrentDirection(Floor floor);
+        /// <summary>
+        /// Sets the stop indicator for the opposite direction but does not add it to the current queue
+        /// </summary>
+        /// <param name="floor"></param>
+        public abstract void SetStopForOppositeDirection(Floor floor);
+        /// <summary>
+        /// Removes the stop indicator in the opposite direction
+        /// </summary>
+        /// <param name="floor"></param>
+        public abstract void ResetStopForOppositeDirection(Floor floor);
+        /// <summary>
+        /// Updates the current floor to have either incremented or decremented, based on elevator state
+        /// </summary>
         public abstract void UpdateCurrentFloor();
+        /// <summary>
+        /// Gets the next upcoming floor the elevator will either stop or pass
+        /// </summary>
+        /// <returns></returns>
         public abstract int GetUpcomingFloor();
+        /// <summary>
+        /// Determines if the floor is within the current direction. IE, if the elevator is ascending and is on floor 6 and 4 UP is requested, this returns true.
+        /// </summary>
+        /// <param name="floor"></param>
+        /// <returns></returns>
         public abstract bool IsOppositeDirection(Floor floor);
 
         protected void AddUserInputToQueue(Floor floor)
@@ -55,29 +84,28 @@ namespace ElevatorApp.Elevator.ElevatorStates
                 Elevator.CurrentQueue.Add(floor.FloorNumber);
             }
         }
-        /**
-        * The elevator does the following steps in the following order:
-        * 1) Moves to the next floor
-        * 2) If the floor is a stop, set the sensor state and stop. Otherwise, continue to the next floor
-        * 3) Update current floor and next floor
-        */
+
+        /// <inheritdoc />
         public abstract void AddFloor(Floor floor);
+        /// <inheritdoc />
         public abstract void MoveToNextFloor();
-        public abstract bool StopOnNextFloor();
+        /// <inheritdoc />
+        public abstract bool ShouldStopOnNextFloor();
+        /// <inheritdoc />
         public virtual void ArriveOnFloor()
         {
-            if (StopOnNextFloor())
+            if (ShouldStopOnNextFloor())
             {
                 Elevator.CurrentBehavior = CurrentElevatorBehavior.Stopped;
                 UpdateCurrentFloor();
                 Elevator.CurrentQueue.Remove(Elevator.CurrentFloor);
                 ResetStopForCurrentDirection(Elevator.FloorList[Elevator.CurrentFloor]);
-                Console.WriteLine($"Stopping on floor {Elevator.CurrentFloor}");
+                Log.Information($"Stopping on floor { Elevator.CurrentFloor }");
             }
             else
             {
                 UpdateCurrentFloor();
-                Console.WriteLine($"Skipping floor {Elevator.CurrentFloor}");
+                Log.Information($"Skipping floor { Elevator.CurrentFloor }");
             }
         }
 

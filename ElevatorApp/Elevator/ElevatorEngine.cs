@@ -14,32 +14,53 @@ namespace ElevatorApp.Elevator
     {
         Elevator Elevator = new Elevator();
         AutoResetEvent resetEvent = new AutoResetEvent(false);
-        public void Run()
+        CancellationToken token = new CancellationToken();
+        public bool IsExiting = false;
+        private Task runningTask;
+        public void Run(CancellationToken cancellationToken)
         {
-
-            Task.Run(async () =>
+            this.token = cancellationToken;
+            runningTask = new Task(() =>
             {
-                while(true)
+                while (true)
                 {
-                    if(Elevator.ElevatorState is WaitingElevatorState)
+                    if (Elevator.ElevatorState is WaitingElevatorState)
                     {
-                        resetEvent.WaitOne();
+                        if(IsExiting)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            resetEvent.WaitOne();
+                        }
                     }
                     Elevator.MoveToNextFloor();
-                    await Task.Delay(3000);
+                    Task.Delay(3000).Wait();
                     Elevator.ArriveOnFloor();
-                    if(Elevator.CurrentBehavior == ElevatorStates.ElevatorState.CurrentElevatorBehavior.Stopped)
+                    if (Elevator.CurrentBehavior == ElevatorState.CurrentElevatorBehavior.Stopped)
                     {
-                        await Task.Delay(1000);
+                        Task.Delay(1000).Wait();
                     }
                     Elevator.UpdateState();
-
                 }
             });
+            runningTask.Start();
         }
+
+        public void Exit()
+        {
+            IsExiting = true;
+            resetEvent.Set();
+            runningTask.Wait();
+        }
+
         public void PushButton(string button)
         {
-            Elevator.PushButton(button);
+            if(!token.IsCancellationRequested)
+            {
+                Elevator.PushButton(button);
+            }
             resetEvent.Set();
         }
     }

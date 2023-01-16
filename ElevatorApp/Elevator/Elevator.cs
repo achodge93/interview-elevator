@@ -1,4 +1,5 @@
 ﻿using ElevatorApp.Elevator.ElevatorStates;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,8 @@ namespace ElevatorApp.Elevator
         public IElevatorState ElevatorState;
         public CurrentElevatorBehavior CurrentBehavior { get; set; } = CurrentElevatorBehavior.Stopped;
         public ElevatorDirection Direction { get; set; }
+        private IElevatorState AscendingState;
+        private IElevatorState DescendingState;
 
         /// <summary>
         /// Contains all of the floors and their current request state
@@ -51,6 +54,8 @@ namespace ElevatorApp.Elevator
         public Elevator()
         {
             ElevatorState = new WaitingElevatorState(this);
+            AscendingState = new AscendingElevatorState(this);
+            DescendingState = new DescendingElevatorState(this);
         }
         public void MoveToNextFloor()
         {
@@ -68,10 +73,6 @@ namespace ElevatorApp.Elevator
 
         public void PushButton(string button)
         {
-            if (button.EqualsIgnoreCase("Q"))
-            {
-                return;
-            }
             /**
              * Matches any number of digits. Optionally matches an additional character at the end.
              * Match examples: 010U, 100000z, 0p, 1
@@ -87,8 +88,8 @@ namespace ElevatorApp.Elevator
 
                 floorUpdate.FloorNumber = floor;
 
-                var isFloorRequestAscending = direction.EqualsIgnoreCase("U");
-                var isFloorRequestDescending = direction.EqualsIgnoreCase("D");
+                var isFloorRequestAscending = direction?.EqualsIgnoreCase("U") ?? false;
+                var isFloorRequestDescending = direction?.EqualsIgnoreCase("D") ?? false;
 
                 floorUpdate.AscendingCommand.ShouldStop = isFloorRequestAscending;
                 floorUpdate.DescendingCommand.ShouldStop = isFloorRequestDescending;
