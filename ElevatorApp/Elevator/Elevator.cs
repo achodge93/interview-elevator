@@ -96,6 +96,16 @@ namespace ElevatorApp.Elevator
                 floorUpdate.AscendingCommand.IsInElevator = string.IsNullOrEmpty(direction);
                 floorUpdate.DescendingCommand.IsInElevator = string.IsNullOrEmpty(direction);
                 ElevatorState.AddFloor(floorUpdate);
+                Log.Information(
+                                $"Adding new stop to the elevator." +
+                                $"Is ascending stop: { FloorList[floor].AscendingCommand.ShouldStop }. " +
+                                $"Is descending stop: { FloorList[floor].DescendingCommand.ShouldStop }. " +
+                                $"Floor: { floor }"
+                               );
+            }
+            else
+            {
+                Log.Warning($"Unable to parse input { button }. Ensure that the format matches {{number}}{{character}}");
             }
         }
 

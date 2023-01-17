@@ -117,5 +117,38 @@ namespace ElevatorAppTests
             Assert.Equal(ElevatorState.CurrentElevatorBehavior.Stopped, Elevator.CurrentBehavior);
             Assert.Empty(Elevator.CurrentQueue);
         }
+
+        [Fact]
+        public void WhenButtonIsDescendingButAboveCurrentFloorWithNoOtherStops_ElevatorAscendsToFloor()
+        {
+            var newFloor = new Floor() { FloorNumber = 10 };
+            Elevator.CurrentFloor = 2;
+
+            elevatorState.AddFloor(newFloor);
+
+            Elevator.FloorList[2].DescendingCommand.ShouldStop = true;
+            Elevator.FloorList[2].AscendingCommand.ShouldStop = true;
+        }
+
+        [Fact]
+        public void WhenThereAreNoMoreDescendingStops_ButThereAreAscending_ThenElevatorSwitchesDirections()
+        {
+            var newFloor = new Floor { FloorNumber = 10 };
+            Elevator.CurrentFloor = 5;
+
+            elevatorState.AddFloor(newFloor);
+            elevatorState.MoveToNextFloor();
+
+            Assert.IsType<AscendingElevatorState>(Elevator.ElevatorState);
+        }
+
+        [Fact]
+        public void WhenThereAreNoMoreStopsInAllDirections_ThenElevatorWaits()
+        {
+            Elevator.CurrentFloor = 10;
+            elevatorState.MoveToNextFloor();
+
+            Assert.IsType<WaitingElevatorState>(Elevator.ElevatorState);
+        }
     }
 }

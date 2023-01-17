@@ -14,12 +14,10 @@ namespace ElevatorApp.Elevator
     {
         Elevator Elevator = new Elevator();
         AutoResetEvent resetEvent = new AutoResetEvent(false);
-        CancellationToken token = new CancellationToken();
         public bool IsExiting = false;
         private Task runningTask;
-        public void Run(CancellationToken cancellationToken)
+        public void Run()
         {
-            this.token = cancellationToken;
             runningTask = new Task(() =>
             {
                 while (true)
@@ -57,7 +55,7 @@ namespace ElevatorApp.Elevator
 
         public void PushButton(string button)
         {
-            if(!token.IsCancellationRequested)
+            if(!IsExiting)
             {
                 Elevator.PushButton(button);
             }
