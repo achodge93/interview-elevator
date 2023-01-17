@@ -4,7 +4,9 @@ It functions using a simple implementation of the state machine pattern. Additio
 Async functionality is encapsulated within the ElevatorEngine. Elevator is the context class for the state machine.
 
 #  Getting Started
-- Either download the ElevatorApp.zip archive and run the ElevatorApp.exe file in `ElevatorApp\bin\Debug\net6.0` or compile the project using ElevatorApp.sln
+- Either download the ElevatorApp.zip release and run the ElevatorApp.exe file in `ElevatorAppCompiled` or compile the project using ElevatorApp.sln from the source
+
+# Usage
 - Enter a number between 0 and 200 to simulate pressing the button in the elevator.
 - Enter a number between 0 and 200 followed by U or D to simulating going up or down respectively. Ex: 10U simulates pressing the outside up button on the 10th floor
 - Type 'Q' or 'q' to exit. The elevator will continue its actions untill all remaining floors are visited. No user input will be accepted.
