@@ -3,8 +3,8 @@ This is a simple elevator app that does simple elevator things. I time boxed thi
 It functions using a simple implementation of the state machine pattern. Additional behaviors can be added by creating new IElevatorStates and updating the state transitions on new floors.
 Async functionality is encapsulated within the ElevatorEngine. Elevator is the context class for the state machine.
 
-#  Usage
-
+#  Getting Started
+- Either download the ElevatorApp.zip archive and run the ElevatorApp.exe file in `ElevatorApp\bin\Debug\net6.0` or compile the project using ElevatorApp.sln
 - Enter a number between 0 and 200 to simulate pressing the button in the elevator.
 - Enter a number between 0 and 200 followed by U or D to simulating going up or down respectively. Ex: 10U simulates pressing the outside up button on the 10th floor
 - Type 'Q' or 'q' to exit. The elevator will continue its actions untill all remaining floors are visited. No user input will be accepted.
